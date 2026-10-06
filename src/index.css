@@ -38,6 +38,38 @@
 }
 
 @layer base {
+  .dark {
+    --background: 0 0% 8.5%;
+    --foreground: 40 20% 92%;
+    --card: 0 0% 8.5%;
+    --card-foreground: 40 20% 92%;
+    --popover: 0 0% 8.5%;
+    --popover-foreground: 40 20% 92%;
+    --primary: 40 20% 92%;
+    --primary-foreground: 0 0% 8.5%;
+    --secondary: 40 8% 17%;
+    --secondary-foreground: 40 20% 92%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 63%;
+    --accent: 40 8% 19%;
+    --accent-foreground: 40 20% 92%;
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 40 20% 92%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 40 20% 92%;
+    --sidebar-background: 0 0% 8.5%;
+    --sidebar-foreground: 40 20% 92%;
+    --sidebar-primary: 40 20% 92%;
+    --sidebar-primary-foreground: 0 0% 8.5%;
+    --sidebar-accent: 40 8% 19%;
+    --sidebar-accent-foreground: 40 20% 92%;
+    --sidebar-border: 0 0% 22%;
+    --sidebar-ring: 40 20% 92%;
+  }
+}
+
+@layer base {
   * {
     @apply border-border;
   }
@@ -78,4 +110,7 @@
   .row-hover:hover {
     background-color: rgba(242, 226, 151, 0.35);
   }
+}
+.dark .row-hover:hover {
+  background-color: rgba(242, 226, 151, 0.08);
 }

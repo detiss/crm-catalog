@@ -40,7 +40,7 @@ export function CompareBox({
     >
       {checked && (
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <path d="M1.5 5.5L4 8L8.5 2" stroke="#fdfaf6" strokeWidth="1.8" />
+          <path d="M1.5 5.5L4 8L8.5 2" className="stroke-background" strokeWidth="1.8" />
         </svg>
       )}
     </button>
@@ -49,14 +49,14 @@ export function CompareBox({
 
 function ExpandedDetails({ crm }: { crm: Crm }) {
   return (
-    <div className="border-t border-dashed border-foreground/20 bg-[#faf6ec] px-5 py-6 sm:px-8">
+    <div className="border-t border-dashed border-foreground/20 bg-[#faf6ec] dark:bg-muted px-5 py-6 sm:px-8">
       <div className="grid gap-8 md:grid-cols-2">
         <div>
           <div className="label-caps mb-3">Плюси</div>
           <ul className="space-y-2">
             {crm.pros.map((pro, i) => (
               <li key={i} className="flex gap-2.5 text-[13px] leading-[150%]">
-                <span className="font-mono text-[12px] font-semibold text-[#3d7a44]">+</span>
+                <span className="font-mono text-[12px] font-semibold text-[#3d7a44] dark:text-[#6bbf76]">+</span>
                 <span>{pro}</span>
               </li>
             ))}
@@ -67,7 +67,7 @@ function ExpandedDetails({ crm }: { crm: Crm }) {
           <ul className="space-y-2">
             {crm.cons.map((con, i) => (
               <li key={i} className="flex gap-2.5 text-[13px] leading-[150%]">
-                <span className="font-mono text-[12px] font-semibold text-[#b03a2e]">−</span>
+                <span className="font-mono text-[12px] font-semibold text-[#b03a2e] dark:text-[#e5796c]">−</span>
                 <span>{con}</span>
               </li>
             ))}

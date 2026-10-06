@@ -4,6 +4,7 @@ import FilterPanel from '@/sections/FilterPanel';
 import CrmTable from '@/sections/CrmTable';
 import CompareTray from '@/sections/CompareTray';
 import Glossary from '@/sections/Glossary';
+import ThemeToggle from '@/sections/ThemeToggle';
 
 type SortMode = 'name' | 'price';
 
@@ -98,6 +99,7 @@ export default function Home() {
               placeholder="Пошук CRM…"
               className="w-full max-w-[260px] border-b border-foreground/40 bg-transparent py-1.5 text-[13px] outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
             />
+            <ThemeToggle />
           </div>
         </div>
       </header>

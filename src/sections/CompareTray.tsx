@@ -25,7 +25,7 @@ export default function CompareTray({ selected, onRemove, onClear, open, setOpen
         <ul className="space-y-1.5">
           {c.pros.map((p, i) => (
             <li key={i} className="flex gap-2">
-              <span className="font-mono font-semibold text-[#3d7a44]">+</span>
+              <span className="font-mono font-semibold text-[#3d7a44] dark:text-[#6bbf76]">+</span>
               <span>{p}</span>
             </li>
           ))}
@@ -38,7 +38,7 @@ export default function CompareTray({ selected, onRemove, onClear, open, setOpen
         <ul className="space-y-1.5">
           {c.cons.map((p, i) => (
             <li key={i} className="flex gap-2">
-              <span className="font-mono font-semibold text-[#b03a2e]">−</span>
+              <span className="font-mono font-semibold text-[#b03a2e] dark:text-[#e5796c]">−</span>
               <span>{p}</span>
             </li>
           ))}

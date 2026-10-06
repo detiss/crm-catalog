@@ -34,7 +34,7 @@ function CheckRow({
       >
         {checked && (
           <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
-            <path d="M1.5 5.5L4 8L8.5 2" stroke="#fdfaf6" strokeWidth="1.8" />
+            <path d="M1.5 5.5L4 8L8.5 2" className="stroke-background" strokeWidth="1.8" />
           </svg>
         )}
       </span>
