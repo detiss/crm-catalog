@@ -52,7 +52,7 @@ export default function AddCrmDialog({ onClose, onSave, onClear, hasCustom }: Pr
       tags,
       pros: lines(pros),
       cons: lines(cons),
-      integrations: items.length ? [{ group: 'Інтеграції', items }] : [],
+      integrations: items.length ? [{ group: 'Основні', items }] : [],
       website: url,
       websiteLabel: url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''),
     };

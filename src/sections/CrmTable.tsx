@@ -47,7 +47,7 @@ export function CompareBox({
   );
 }
 
-function ExpandedDetails({ crm }: { crm: Crm }) {
+function ExpandedDetails({ crm, onDelete }: { crm: Crm; onDelete?: () => void }) {
   return (
     <div className="border-t border-dashed border-foreground/20 bg-[#faf6ec] dark:bg-muted px-5 py-6 sm:px-8">
       <div className="grid gap-8 md:grid-cols-2">
@@ -94,9 +94,21 @@ function ExpandedDetails({ crm }: { crm: Crm }) {
           <span className="label-caps mr-2">Тарифи</span>
           {crm.pricingNote}
         </p>
-        <a href={crm.website} target="_blank" rel="noreferrer" className="btn-outline">
-          {crm.websiteLabel} ↗
-        </a>
+        <div className="flex flex-wrap gap-3">
+          {onDelete && (
+            <button
+              className="btn-outline"
+              onClick={() => window.confirm(`Видалити «${crm.name}» зі своїх CRM?`) && onDelete()}
+            >
+              Видалити мою CRM
+            </button>
+          )}
+          {crm.website && (
+            <a href={crm.website} target="_blank" rel="noreferrer" className="btn-outline">
+              {crm.websiteLabel} ↗
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -108,9 +120,11 @@ interface TableProps {
   onExpand: (id: string | null) => void;
   compare: string[];
   onCompare: (id: string) => void;
+  customIds?: Set<string>;
+  onDelete?: (id: string) => void;
 }
 
-export default function CrmTable({ crms, expandedId, onExpand, compare, onCompare }: TableProps) {
+export default function CrmTable({ crms, expandedId, onExpand, compare, onCompare, customIds, onDelete }: TableProps) {
   return (
     <div>
       <div className="hidden grid-cols-[24px_minmax(0,1fr)_130px_90px_70px] items-end gap-4 border-b-2 border-foreground pb-2 md:grid">
@@ -176,7 +190,9 @@ export default function CrmTable({ crms, expandedId, onExpand, compare, onCompar
               </div>
             </div>
 
-            {expanded && <ExpandedDetails crm={crm} />}
+            {expanded && (
+              <ExpandedDetails crm={crm} onDelete={customIds?.has(crm.id) && onDelete ? () => onDelete(crm.id) : undefined} />
+            )}
           </div>
         );
       })}

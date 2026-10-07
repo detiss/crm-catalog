@@ -6,6 +6,7 @@ import CompareTray from '@/sections/CompareTray';
 import Glossary from '@/sections/Glossary';
 import ThemeToggle from '@/sections/ThemeToggle';
 import AddCrmDialog from '@/sections/AddCrmDialog';
+import { COMMUNITY_CRMS } from '@/data/community';
 
 type SortMode = 'name' | 'price';
 
@@ -22,7 +23,7 @@ function loadCustom(): Crm[] {
 export default function Home() {
   const [custom, setCustom] = useState<Crm[]>(loadCustom);
   const [adding, setAdding] = useState(false);
-  const all = useMemo(() => [...CRMS, ...custom], [custom]);
+  const all = useMemo(() => [...CRMS, ...COMMUNITY_CRMS, ...custom], [custom]);
   const saveCustom = (list: Crm[]) => {
     setCustom(list);
     try { localStorage.setItem(STORE, JSON.stringify(list)); } catch { /* ignore */ }
@@ -186,6 +187,8 @@ export default function Home() {
               onExpand={setExpandedId}
               compare={compare}
               onCompare={onCompare}
+              customIds={new Set(custom.map((c) => c.id))}
+              onDelete={(id) => saveCustom(custom.filter((c) => c.id !== id))}
             />
           </section>
         </div>

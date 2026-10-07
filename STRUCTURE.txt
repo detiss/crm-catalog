@@ -20,6 +20,7 @@ components.json       Налаштування шаблону shadcn/ui (для 
 README.md             Короткий опис, запуск, публікація.
 GLOSSARY.md           Пояснення термінів: хмара, коробка, Enterprise, B2B тощо.
 STRUCTURE.txt         Цей файл.
+HOW_TO_ADD_CRM.md     Інструкція: як відвідувач додає CRM і як власник приймає пропозиції з Issues.
 public/ (або images.jpg)  Іконка вкладки браузера (favicon).
 
 .github/workflows/
@@ -34,6 +35,8 @@ index.css             Глобальні стилі: шрифти, світла 
 
 src/data/
   crms.ts             ДАНІ: тип Crm, списки фільтрів (SEGMENTS, FEATURE_TAGS), підписи типів і масив CRMS з усіма системами. Щоб додати CRM для всіх — дописати об'єкт сюди.
+
+  community.ts        CRM від користувачів (з Issues). Нові блоки вставляються між двома маркерами всередині масиву.
 
 src/pages/
   Home.tsx            Головна (і єдина) сторінка: шапка, пошук, стан фільтрів і сортування, порівняння, власні CRM з localStorage.
