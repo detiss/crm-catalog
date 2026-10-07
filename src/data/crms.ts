@@ -362,3 +362,38 @@ export const CRMS: Crm[] = [
     websiteLabel: 'creatio.com',
   },
 ];
+
+{
+  "id": "а",
+  "name": "а",
+  "tagline": "а",
+  "bestFor": "а",
+  "segments": [
+    "E-commerce"
+  ],
+  "deployment": "cloud",
+  "keyFeature": "а",
+  "priceLevel": 1,
+  "pricingNote": "а",
+  "tags": [
+    "Безкоштовний тариф",
+    "Мобільний застосунок",
+    "Маркетплейси"
+  ],
+  "pros": [
+    "а"
+  ],
+  "cons": [
+    "а"
+  ],
+  "integrations": [
+    {
+      "group": "Інтеграції",
+      "items": [
+        "нова"
+      ]
+    }
+  ],
+  "website": "https://аа",
+  "websiteLabel": "аа"
+},
