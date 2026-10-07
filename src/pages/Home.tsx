@@ -1,14 +1,32 @@
 import { useMemo, useState } from 'react';
-import { CRMS, type Deployment } from '@/data/crms';
+import { CRMS, type Crm, type Deployment } from '@/data/crms';
 import FilterPanel from '@/sections/FilterPanel';
 import CrmTable from '@/sections/CrmTable';
 import CompareTray from '@/sections/CompareTray';
 import Glossary from '@/sections/Glossary';
 import ThemeToggle from '@/sections/ThemeToggle';
+import AddCrmDialog from '@/sections/AddCrmDialog';
 
 type SortMode = 'name' | 'price';
 
+const STORE = 'custom-crms';
+function loadCustom(): Crm[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(STORE) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function Home() {
+  const [custom, setCustom] = useState<Crm[]>(loadCustom);
+  const [adding, setAdding] = useState(false);
+  const all = useMemo(() => [...CRMS, ...custom], [custom]);
+  const saveCustom = (list: Crm[]) => {
+    setCustom(list);
+    try { localStorage.setItem(STORE, JSON.stringify(list)); } catch { /* ignore */ }
+  };
   const [search, setSearch] = useState('');
   const [segSel, setSegSel] = useState<Set<string>>(new Set());
   const [tagSel, setTagSel] = useState<Set<string>>(new Set());
@@ -28,7 +46,7 @@ export default function Home() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    let list = CRMS.filter((c) => {
+    let list = all.filter((c) => {
       if (q && !(c.name + ' ' + c.tagline + ' ' + c.bestFor).toLowerCase().includes(q)) return false;
       if (segSel.size > 0 && !c.segments.some((s) => segSel.has(s))) return false;
       if (tagSel.size > 0 && !c.tags.some((t) => tagSel.has(t))) return false;
@@ -46,7 +64,7 @@ export default function Home() {
         : a.priceLevel - b.priceLevel || a.name.localeCompare(b.name, 'uk'),
     );
     return list;
-  }, [search, segSel, tagSel, depSel, sort]);
+  }, [all, search, segSel, tagSel, depSel, sort]);
 
   const activeCount =
     segSel.size + tagSel.size + depSel.size + (search.trim() ? 1 : 0);
@@ -64,7 +82,7 @@ export default function Home() {
     );
   };
 
-  const selectedCrms = CRMS.filter((c) => compare.includes(c.id));
+  const selectedCrms = all.filter((c) => compare.includes(c.id));
 
   const filterPanel = (
     <FilterPanel
@@ -86,7 +104,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-8 gap-y-3 px-4 py-4 sm:px-8">
           <div>
             <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted-foreground">
-              Агрегатор · {CRMS.length} систем · UA
+              Агрегатор · {all.length} систем · UA
             </div>
             <h1 className="text-[22px] font-bold leading-[110%] tracking-[-0.5px]">
               CRM-Каталог
@@ -99,6 +117,9 @@ export default function Home() {
               placeholder="Пошук CRM…"
               className="w-full max-w-[260px] border-b border-foreground/40 bg-transparent py-1.5 text-[13px] outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
             />
+            <button className="btn-outline !px-3 !py-2" onClick={() => setAdding(true)}>
+              + Додати CRM
+            </button>
             <ThemeToggle />
           </div>
         </div>
@@ -170,6 +191,14 @@ export default function Home() {
         </div>
 
         <Glossary />
+        {adding && (
+          <AddCrmDialog
+            onClose={() => setAdding(false)}
+            hasCustom={custom.length > 0}
+            onClear={() => saveCustom([])}
+            onSave={(c) => saveCustom([...custom.filter((x) => x.id !== c.id), c])}
+          />
+        )}
 
         {/* footer note */}
         <footer className="mt-16 border-t border-border pt-6">
