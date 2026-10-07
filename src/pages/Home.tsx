@@ -11,10 +11,23 @@ import { COMMUNITY_CRMS } from '@/data/community';
 type SortMode = 'name' | 'price';
 
 const STORE = 'custom-crms';
+const BASE_IDS = new Set([...CRMS, ...COMMUNITY_CRMS].map((c) => c.id));
+function dedupe(list: Crm[]): Crm[] {
+  const seen = new Set<string>();
+  return list.filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
+}
+
 function loadCustom(): Crm[] {
   try {
     const v = JSON.parse(localStorage.getItem(STORE) || '[]');
-    return Array.isArray(v) ? v : [];
+    if (!Array.isArray(v)) return [];
+    // відкидаємо пошкоджені записи, щоб вони не «ламали» сторінку
+    return v.filter(
+      (c) =>
+        c && typeof c.id === 'string' && typeof c.name === 'string' &&
+        [c.segments, c.tags, c.pros, c.cons, c.integrations].every(Array.isArray) &&
+        [1, 2, 3].includes(c.priceLevel),
+    );
   } catch {
     return [];
   }
@@ -23,7 +36,7 @@ function loadCustom(): Crm[] {
 export default function Home() {
   const [custom, setCustom] = useState<Crm[]>(loadCustom);
   const [adding, setAdding] = useState(false);
-  const all = useMemo(() => [...CRMS, ...COMMUNITY_CRMS, ...custom], [custom]);
+  const all = useMemo(() => dedupe([...CRMS, ...COMMUNITY_CRMS, ...custom]), [custom]);
   const saveCustom = (list: Crm[]) => {
     setCustom(list);
     try { localStorage.setItem(STORE, JSON.stringify(list)); } catch { /* ignore */ }
@@ -187,8 +200,12 @@ export default function Home() {
               onExpand={setExpandedId}
               compare={compare}
               onCompare={onCompare}
-              customIds={new Set(custom.map((c) => c.id))}
-              onDelete={(id) => saveCustom(custom.filter((c) => c.id !== id))}
+              customIds={new Set(custom.filter((c) => !BASE_IDS.has(c.id)).map((c) => c.id))}
+              onDelete={(id) => {
+                saveCustom(custom.filter((c) => c.id !== id));
+                setCompare((p) => p.filter((x) => x !== id));
+                setExpandedId(null);
+              }}
             />
           </section>
         </div>
@@ -197,6 +214,7 @@ export default function Home() {
         {adding && (
           <AddCrmDialog
             onClose={() => setAdding(false)}
+            existing={all}
             hasCustom={custom.length > 0}
             onClear={() => saveCustom([])}
             onSave={(c) => saveCustom([...custom.filter((x) => x.id !== c.id), c])}

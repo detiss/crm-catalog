@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SEGMENTS, FEATURE_TAGS, DEPLOYMENT_LABEL, type Crm, type Deployment } from '@/data/crms';
 
 const REPO = 'https://github.com/detiss/crm-catalog';
-const lines = (s: string) => s.split('\n').map((x) => x.trim()).filter(Boolean);
+const t = (s: string) => s.replace(/`/g, "'").trim(); // зворотні лапки ламають розмітку Issue
+const lines = (s: string) => s.split('\n').map(t).filter(Boolean);
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9а-яіїєґ]/g, '');
+const host = (u: string) => u.toLowerCase().replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9а-яіїєґ]+/gi, '-').replace(/^-|-$/g, '') || 'crm';
 const toggle = (arr: string[], v: string) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
@@ -13,9 +16,10 @@ interface Props {
   onSave: (c: Crm) => void;
   onClear: () => void;
   hasCustom: boolean;
+  existing: Crm[];
 }
 
-export default function AddCrmDialog({ onClose, onSave, onClear, hasCustom }: Props) {
+export default function AddCrmDialog({ onClose, onSave, onClear, hasCustom, existing }: Props) {
   const [name, setName] = useState('');
   const [tagline, setTagline] = useState('');
   const [bestFor, setBestFor] = useState('');
@@ -30,25 +34,48 @@ export default function AddCrmDialog({ onClose, onSave, onClear, hasCustom }: Pr
   const [cons, setCons] = useState('');
   const [integr, setIntegr] = useState('');
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onClose]);
 
   function build(): Crm | null {
     if (!name.trim() || segments.length === 0) {
       setError('Вкажіть назву та оберіть хоча б один сегмент «Для кого».');
       return null;
     }
+    const site = website.trim();
+    const url = site && !/^https?:\/\//.test(site) ? `https://${site}` : site;
+    if (url) {
+      try {
+        if (!new URL(url).hostname.includes('.')) throw new Error();
+      } catch {
+        setError('Некоректне посилання на сайт (приклад: example.com.ua).');
+        return null;
+      }
+    }
+    const dup = existing.find(
+      (c) => norm(c.name) === norm(name) || (url && c.website && host(c.website) === host(url)),
+    );
+    if (dup) {
+      setError(`Схожа CRM вже є в каталозі: «${dup.name}».`);
+      return null;
+    }
     setError('');
-    const url = website.trim() && !/^https?:\/\//.test(website.trim()) ? `https://${website.trim()}` : website.trim();
-    const items = integr.split(',').map((x) => x.trim()).filter(Boolean);
+    const items = integr.split(',').map(t).filter(Boolean);
     return {
       id: slug(name),
-      name: name.trim(),
-      tagline: tagline.trim(),
-      bestFor: bestFor.trim(),
+      name: t(name),
+      tagline: t(tagline),
+      bestFor: t(bestFor),
       segments,
       deployment,
-      keyFeature: keyFeature.trim(),
+      keyFeature: t(keyFeature),
       priceLevel,
-      pricingNote: pricingNote.trim(),
+      pricingNote: t(pricingNote),
       tags,
       pros: lines(pros),
       cons: lines(cons),
@@ -69,15 +96,22 @@ export default function AddCrmDialog({ onClose, onSave, onClear, hasCustom }: Pr
   function suggest() {
     const c = build();
     if (!c) return;
-    const body =
-      `Пропозиція нової CRM: **${c.name}**\n\n` +
-      `Сайт: ${c.website || '—'}\n\n` +
-      `Готовий об'єкт для вставки в масив \`CRMS\` у \`src/data/crms.ts\`:\n\n` +
-      '```ts\n' + JSON.stringify(c, null, 2) + ',\n```\n';
-    window.open(
-      `${REPO}/issues/new?title=${encodeURIComponent('Нова CRM: ' + c.name)}&body=${encodeURIComponent(body)}`,
-      '_blank',
-    );
+    const json = JSON.stringify(c, null, 2) + ',';
+    const title = encodeURIComponent('Нова CRM: ' + c.name);
+    const full =
+      `Пропозиція нової CRM: **${c.name}**\n\nСайт: ${c.website || '—'}\n\n` +
+      `**Для власника репозиторію.** Скопіюйте блок нижче й вставте у файл \`src/data/community.ts\` ` +
+      `між двома рядками-маркерами ⬇⬇⬇ / ⬆⬆⬆.\n\n` +
+      '```ts\n' + json + '\n```\n';
+    let url = `${REPO}/issues/new?title=${title}&body=${encodeURIComponent(full)}`;
+    if (url.length > 7000) {
+      // GitHub не приймає надто довгі посилання: копіюємо дані в буфер обміну
+      navigator.clipboard?.writeText(json).catch(() => {});
+      const short = `Пропозиція нової CRM: **${c.name}**\n\nДані скопійовано в буфер обміну — вставте їх тут (Ctrl+V).`;
+      url = `${REPO}/issues/new?title=${title}&body=${encodeURIComponent(short)}`;
+      setNotice('Дані завеликі для посилання: їх скопійовано в буфер обміну. Вставте їх (Ctrl+V) у текст Issue.');
+    }
+    window.open(url, '_blank');
   }
 
   const Chips = ({ list, sel, set }: { list: readonly string[]; sel: string[]; set: (v: string[]) => void }) => (
@@ -105,11 +139,11 @@ export default function AddCrmDialog({ onClose, onSave, onClear, hasCustom }: Pr
         </div>
 
         <L>Назва *</L>
-        <input className={field} value={name} onChange={(e) => setName(e.target.value)} />
+        <input maxLength={60} className={field} value={name} onChange={(e) => setName(e.target.value)} />
         <L>Короткий опис</L>
-        <input className={field} value={tagline} onChange={(e) => setTagline(e.target.value)} />
+        <input maxLength={200} className={field} value={tagline} onChange={(e) => setTagline(e.target.value)} />
         <L>Для кого підходить (текстом)</L>
-        <input className={field} value={bestFor} onChange={(e) => setBestFor(e.target.value)} />
+        <input maxLength={200} className={field} value={bestFor} onChange={(e) => setBestFor(e.target.value)} />
         <L>Для кого: сегменти *</L>
         <Chips list={SEGMENTS} sel={segments} set={setSegments} />
         <L>Тип рішення</L>
@@ -125,21 +159,22 @@ export default function AddCrmDialog({ onClose, onSave, onClear, hasCustom }: Pr
           <option value={3}>₴₴₴ — корпоративний</option>
         </select>
         <L>Ціни / тарифи (коментар)</L>
-        <input className={field} value={pricingNote} onChange={(e) => setPricingNote(e.target.value)} />
+        <input maxLength={200} className={field} value={pricingNote} onChange={(e) => setPricingNote(e.target.value)} />
         <L>Ключова особливість</L>
-        <input className={field} value={keyFeature} onChange={(e) => setKeyFeature(e.target.value)} />
+        <input maxLength={200} className={field} value={keyFeature} onChange={(e) => setKeyFeature(e.target.value)} />
         <L>Можливості (теги)</L>
         <Chips list={FEATURE_TAGS} sel={tags} set={setTags} />
         <L>Плюси (кожен з нового рядка)</L>
-        <textarea className={field} rows={3} value={pros} onChange={(e) => setPros(e.target.value)} />
+        <textarea maxLength={800} className={field} rows={3} value={pros} onChange={(e) => setPros(e.target.value)} />
         <L>Мінуси (кожен з нового рядка)</L>
-        <textarea className={field} rows={3} value={cons} onChange={(e) => setCons(e.target.value)} />
+        <textarea maxLength={800} className={field} rows={3} value={cons} onChange={(e) => setCons(e.target.value)} />
         <L>Інтеграції (через кому)</L>
-        <input className={field} value={integr} onChange={(e) => setIntegr(e.target.value)} placeholder="Нова Пошта, Rozetka, LiqPay" />
+        <input maxLength={200} className={field} value={integr} onChange={(e) => setIntegr(e.target.value)} placeholder="Нова Пошта, Rozetka, LiqPay" />
         <L>Сайт</L>
-        <input className={field} value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="example.com.ua" />
+        <input maxLength={200} className={field} value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="example.com.ua" />
 
         {error && <p className="mt-4 text-[13px] text-destructive">{error}</p>}
+        {notice && <p className="mt-4 text-[13px]">{notice}</p>}
 
         <div className="mt-6 flex flex-wrap gap-3">
           <button className="btn-outline" onClick={save}>Зберегти у себе</button>
