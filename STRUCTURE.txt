@@ -20,7 +20,6 @@ components.json       Налаштування шаблону shadcn/ui (для 
 README.md             Короткий опис, запуск, публікація.
 GLOSSARY.md           Пояснення термінів: хмара, коробка, Enterprise, B2B тощо.
 STRUCTURE.txt         Цей файл.
-HOW_TO_ADD_CRM.md     Інструкція: як відвідувач додає CRM і як власник приймає пропозиції з Issues.
 public/ (або images.jpg)  Іконка вкладки браузера (favicon).
 
 .github/workflows/
