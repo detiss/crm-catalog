@@ -14,13 +14,8 @@ npm run dev
 ```
 
 
-## Структура
+## Структура: [STRUCTURE.txt](./STRUCTURE.txt).
 
-```
-src/data/crms.ts          — дані всіх CRM
-src/pages/Home.tsx        — головна сторінка, логіка фільтрів
-src/sections/             — таблиця, фільтри, панель порівняння, довідник
-GLOSSARY.md               — пояснення термінів (хмара, коробка, Enterprise…)
-```
+
 
 Пояснення всіх термінів: [GLOSSARY.md](./GLOSSARY.md).
