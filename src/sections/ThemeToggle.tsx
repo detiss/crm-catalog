@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLang } from '@/i18n';
 
 const KEY = 'theme';
 
@@ -14,6 +15,7 @@ function initialDark(): boolean {
 document.documentElement.classList.toggle('dark', initialDark());
 
 export default function ThemeToggle() {
+  const { t } = useLang();
   const [dark, setDark] = useState(initialDark);
 
   useEffect(() => {
@@ -26,11 +28,11 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setDark(!dark)}
-      aria-label="Перемкнути тему"
-      title="Перемкнути світлу / темну тему"
-      className="btn-outline !px-3 !py-2"
+      aria-label={t.themeAria}
+      title={t.themeTitle}
+      className="btn-outline whitespace-nowrap !px-3 !py-2"
     >
-      {dark ? '☀ Світла' : '☾ Темна'}
+      {dark ? t.themeLight : t.themeDark}
     </button>
   );
 }

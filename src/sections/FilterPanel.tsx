@@ -1,4 +1,5 @@
 import { SEGMENTS, FEATURE_TAGS, type Deployment } from '@/data/crms';
+import { useLang } from '@/i18n';
 
 interface Props {
   segSel: Set<string>;
@@ -46,37 +47,38 @@ function CheckRow({
 }
 
 export default function FilterPanel(p: Props) {
+  const { t, seg, tag } = useLang();
   return (
     <div className="space-y-8">
       <div className="flex items-baseline justify-between">
-        <span className="label-caps">Фільтри {p.activeCount > 0 && `(${p.activeCount})`}</span>
+        <span className="label-caps">{t.filters} {p.activeCount > 0 && `(${p.activeCount})`}</span>
         {p.activeCount > 0 && (
           <button
             onClick={p.reset}
             className="font-mono text-[10px] uppercase tracking-[1px] underline underline-offset-4 hover:no-underline"
           >
-            Скинути
+            {t.reset}
           </button>
         )}
       </div>
 
       <div>
-        <div className="label-caps mb-2.5 border-b border-border pb-2">Для кого</div>
+        <div className="label-caps mb-2.5 border-b border-border pb-2">{t.forWhom}</div>
         {SEGMENTS.map((s) => (
-          <CheckRow key={s} label={s} checked={p.segSel.has(s)} onToggle={() => p.toggleSeg(s)} />
+          <CheckRow key={s} label={seg(s)} checked={p.segSel.has(s)} onToggle={() => p.toggleSeg(s)} />
         ))}
       </div>
 
       <div>
-        <div className="label-caps mb-2.5 border-b border-border pb-2">Тип рішення</div>
-        <CheckRow label="Хмара" checked={p.depSel.has('cloud')} onToggle={() => p.toggleDep('cloud')} />
-        <CheckRow label="Коробка (on-premise)" checked={p.depSel.has('box')} onToggle={() => p.toggleDep('box')} />
+        <div className="label-caps mb-2.5 border-b border-border pb-2">{t.solutionType}</div>
+        <CheckRow label={t.filterCloud} checked={p.depSel.has('cloud')} onToggle={() => p.toggleDep('cloud')} />
+        <CheckRow label={t.filterBox} checked={p.depSel.has('box')} onToggle={() => p.toggleDep('box')} />
       </div>
 
       <div>
-        <div className="label-caps mb-2.5 border-b border-border pb-2">Можливості</div>
-        {FEATURE_TAGS.map((t) => (
-          <CheckRow key={t} label={t} checked={p.tagSel.has(t)} onToggle={() => p.toggleTag(t)} />
+        <div className="label-caps mb-2.5 border-b border-border pb-2">{t.features}</div>
+        {FEATURE_TAGS.map((f) => (
+          <CheckRow key={f} label={tag(f)} checked={p.tagSel.has(f)} onToggle={() => p.toggleTag(f)} />
         ))}
       </div>
     </div>

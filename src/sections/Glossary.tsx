@@ -1,29 +1,20 @@
 import { useState } from 'react';
-
-const TERMS: { term: string; text: string }[] = [
-  { term: 'Хмара (SaaS)', text: 'Система працює на серверах вендора, ви заходите через браузер і платите щомісячну підписку. Встановлювати нічого не треба, оновлення автоматичні.' },
-  { term: 'Коробка (on-premise)', text: 'Систему купують і встановлюють на власний сервер компанії. Дані повністю під вашим контролем, але потрібні адміністратор і більший початковий бюджет.' },
-  { term: 'Хмара / Коробка', text: 'Вендор пропонує обидва варіанти — можна почати з хмари, а пізніше перейти на власний сервер.' },
-  { term: 'Enterprise', text: 'Рішення для великих компаній, банків і холдингів: складне налаштування, інтеграція з ERP, висока вартість, індивідуальні ліцензії.' },
-  { term: 'B2B / B2C', text: 'B2B — продажі іншим компаніям (довгі угоди, кілька контактів у клієнта). B2C — продажі кінцевим споживачам (багато дрібних замовлень).' },
-  { term: 'E-commerce', text: 'Інтернет-торгівля: магазин на сайті, маркетплейси (Rozetka, Prom), соцмережі. Таким CRM важливі замовлення, склад і доставка.' },
-  { term: 'Low-code', text: 'Процеси налаштовуються візуально, мінімально програмуючи.' },
-  { term: 'Ціновий рівень ₴', text: '₴ — доступно для малого бізнесу, ₴₴ — середній сегмент, ₴₴₴ — корпоративні ліцензії. Це орієнтир, а не точна ціна.' },
-];
+import { useLang } from '@/i18n';
 
 export default function Glossary() {
+  const { t } = useLang();
   const [open, setOpen] = useState(false);
   return (
     <section className="mt-16 border-t border-border pt-6">
       <button onClick={() => setOpen(!open)} className="btn-outline">
-        {open ? 'Сховати довідник термінів ↑' : 'Що означають терміни: хмара, коробка, Enterprise… ↓'}
+        {open ? t.glossaryHide : t.glossaryShow}
       </button>
       {open && (
         <dl className="mt-6 grid gap-x-10 gap-y-5 sm:grid-cols-2">
-          {TERMS.map((t) => (
-            <div key={t.term}>
-              <dt className="label-caps mb-1">{t.term}</dt>
-              <dd className="text-[13px] leading-[160%] text-foreground/80">{t.text}</dd>
+          {t.glossary.map((g) => (
+            <div key={g.term}>
+              <dt className="label-caps mb-1">{g.term}</dt>
+              <dd className="text-[13px] leading-[160%] text-foreground/80">{g.text}</dd>
             </div>
           ))}
         </dl>

@@ -1,9 +1,10 @@
 import type { Crm } from '@/data/crms';
-import { DEPLOYMENT_LABEL } from '@/data/crms';
+import { useLang } from '@/i18n';
 
 export function PriceMark({ level }: { level: 1 | 2 | 3 }) {
+  const { t } = useLang();
   return (
-    <span className="font-mono text-[12px] tracking-[2px]" title={`Ціновий рівень ${level}/3`}>
+    <span className="font-mono text-[12px] tracking-[2px]" title={t.priceLevelTitle(level)}>
       {[1, 2, 3].map((i) => (
         <span key={i} className={i <= level ? 'text-foreground' : 'text-foreground/20'}>
           ₴
@@ -22,6 +23,7 @@ export function CompareBox({
   disabled: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useLang();
   return (
     <button
       onClick={(e) => {
@@ -29,7 +31,7 @@ export function CompareBox({
         onToggle();
       }}
       disabled={disabled && !checked}
-      title={disabled && !checked ? 'Максимум 4 системи' : 'Додати до порівняння'}
+      title={disabled && !checked ? t.maxFour : t.addToCompare}
       className={`flex h-[16px] w-[16px] shrink-0 items-center justify-center border transition-colors ${
         checked
           ? 'border-foreground bg-foreground'
@@ -48,11 +50,12 @@ export function CompareBox({
 }
 
 function ExpandedDetails({ crm, onDelete }: { crm: Crm; onDelete?: () => void }) {
+  const { t } = useLang();
   return (
     <div className="border-t border-dashed border-foreground/20 bg-[#faf6ec] dark:bg-muted px-5 py-6 sm:px-8">
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <div className="label-caps mb-3">Плюси</div>
+          <div className="label-caps mb-3">{t.pros}</div>
           <ul className="space-y-2">
             {crm.pros.map((pro, i) => (
               <li key={i} className="flex gap-2.5 text-[13px] leading-[150%]">
@@ -63,7 +66,7 @@ function ExpandedDetails({ crm, onDelete }: { crm: Crm; onDelete?: () => void })
           </ul>
         </div>
         <div>
-          <div className="label-caps mb-3">Мінуси</div>
+          <div className="label-caps mb-3">{t.cons}</div>
           <ul className="space-y-2">
             {crm.cons.map((con, i) => (
               <li key={i} className="flex gap-2.5 text-[13px] leading-[150%]">
@@ -76,7 +79,7 @@ function ExpandedDetails({ crm, onDelete }: { crm: Crm; onDelete?: () => void })
       </div>
 
       <div className="mt-8">
-        <div className="label-caps mb-3">Інтеграції</div>
+        <div className="label-caps mb-3">{t.integrations}</div>
         <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
           {crm.integrations.map((g) => (
             <div key={g.group} className="text-[12px] leading-[160%]">
@@ -91,16 +94,16 @@ function ExpandedDetails({ crm, onDelete }: { crm: Crm; onDelete?: () => void })
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-5">
         <p className="max-w-xl text-[12px] leading-[160%] text-muted-foreground">
-          <span className="label-caps mr-2">Тарифи</span>
+          <span className="label-caps mr-2">{t.tariffs}</span>
           {crm.pricingNote}
         </p>
         <div className="flex flex-wrap gap-3">
           {onDelete && (
             <button
               className="btn-outline"
-              onClick={() => window.confirm(`Видалити «${crm.name}» зі своїх CRM?`) && onDelete()}
+              onClick={() => window.confirm(t.confirmDelete(crm.name)) && onDelete()}
             >
-              Видалити мою CRM
+              {t.deleteMine}
             </button>
           )}
           {crm.website && (
@@ -125,19 +128,21 @@ interface TableProps {
 }
 
 export default function CrmTable({ crms, expandedId, onExpand, compare, onCompare, customIds, onDelete }: TableProps) {
+  const { t, dep, crm: loc } = useLang();
   return (
     <div>
       <div className="hidden grid-cols-[24px_minmax(0,1fr)_130px_90px_70px] items-end gap-4 border-b-2 border-foreground pb-2 md:grid">
         <span />
-        <span className="label-caps">CRM-система</span>
-        <span className="label-caps">Тип</span>
-        <span className="label-caps">Ціна</span>
-        <span className="label-caps text-right">Порівняти</span>
+        <span className="label-caps">{t.colCrm}</span>
+        <span className="label-caps">{t.colType}</span>
+        <span className="label-caps">{t.colPrice}</span>
+        <span className="label-caps text-right">{t.colCompare}</span>
       </div>
 
       {crms.map((crm, idx) => {
         const expanded = expandedId === crm.id;
         const checked = compare.includes(crm.id);
+        const view = loc(crm);
         return (
           <div key={crm.id} className="border-b border-border">
             <div
@@ -154,23 +159,23 @@ export default function CrmTable({ crms, expandedId, onExpand, compare, onCompar
                 <div className="flex flex-wrap items-baseline gap-x-3">
                   <h3 className="text-[17px] font-semibold leading-[120%]">{crm.name}</h3>
                   <span className="font-mono text-[10px] uppercase tracking-[0.5px] text-muted-foreground md:hidden">
-                    {DEPLOYMENT_LABEL[crm.deployment]}
+                    {dep(crm.deployment)}
                   </span>
                 </div>
                 <p className="mt-1 max-w-2xl text-[12.5px] leading-[150%] text-muted-foreground">
-                  {crm.tagline}
+                  {view.tagline}
                 </p>
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  <span className="tag-chip border-foreground/50 text-foreground">{crm.bestFor.split(',')[0]}</span>
-                  {crm.tags.slice(0, 4).map((t) => (
-                    <span key={t} className="tag-chip">
-                      {t}
+                  <span className="tag-chip border-foreground/50 text-foreground">{view.bestFor.split(/[,:(]/)[0].trim()}</span>
+                  {view.tags.slice(0, 4).map((tg) => (
+                    <span key={tg} className="tag-chip">
+                      {tg}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="hidden text-[12.5px] md:block">{DEPLOYMENT_LABEL[crm.deployment]}</div>
+              <div className="hidden text-[12.5px] md:block">{dep(crm.deployment)}</div>
 
               <div className="hidden md:block">
                 <PriceMark level={crm.priceLevel} />
@@ -191,7 +196,7 @@ export default function CrmTable({ crms, expandedId, onExpand, compare, onCompar
             </div>
 
             {expanded && (
-              <ExpandedDetails crm={crm} onDelete={customIds?.has(crm.id) && onDelete ? () => onDelete(crm.id) : undefined} />
+              <ExpandedDetails crm={view} onDelete={customIds?.has(crm.id) && onDelete ? () => onDelete(crm.id) : undefined} />
             )}
           </div>
         );
@@ -200,7 +205,7 @@ export default function CrmTable({ crms, expandedId, onExpand, compare, onCompar
       {crms.length === 0 && (
         <div className="py-16 text-center">
           <p className="font-mono text-[12px] uppercase tracking-[1px] text-muted-foreground">
-            Нічого не знайдено — послабте фільтри
+            {t.nothingFound}
           </p>
         </div>
       )}
