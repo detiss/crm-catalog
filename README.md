@@ -31,3 +31,4 @@ Settings → Pages → Source → **GitHub Actions**.
 ## Документація
 - [STRUCTURE.txt](./STRUCTURE.txt) — призначення кожного файлу
 - [GLOSSARY.md](./GLOSSARY.md) — пояснення термінів (хмара, коробка, Enterprise…)
+- [AI_USAGE.txt](./AI_USAGE.txt) — що зроблено за допомогою ШІ і якими промптами
